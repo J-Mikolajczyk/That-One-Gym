@@ -65,7 +65,7 @@ export default function Home() {
               className="h-15 bg-neutral-800 p-2 rounded-lg w-full max-w-150 min-w-80"
             />
             {showDropdown && (
-              <ul className="absolute top-full left-0 w-full bg-white shadow-md rounded-lg mt-2 text-black z-20 max-h-60 overflow-y-auto">
+              <ul className="absolute top-full left-1/2 transform -translate-x-1/2 bg-white shadow-md rounded-lg mt-2 text-black z-20 h-10 overflow-y-auto w-full max-w-150 min-w-80 flex items-center">
                 {suggestions.length > 0 ? (
                   suggestions.map((gym) => (
                     <li
@@ -77,8 +77,8 @@ export default function Home() {
                     </li>
                   ))
                 ) : (
-                  <li className="px-4 py-2 text-sm text-gray-500">
-                    No gyms found.
+                  <li className="p-2 text-sm text-gray-500 text-left">
+                    + No gyms found.
                     <button
                       className="ml-2 text-blue-600 underline"
                       onClick={(e) => {
