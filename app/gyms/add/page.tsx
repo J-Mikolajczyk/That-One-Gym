@@ -1,6 +1,7 @@
 'use client';
 import { signIn, useSession } from "next-auth/react";
 import { useState, FormEvent } from "react";
+import Link from "next/link";
 
 export default function AddGymPage() {
     const { data: session } = useSession();
@@ -50,9 +51,19 @@ export default function AddGymPage() {
 
     if (!session) {
         return (
-            <div className="flex flex-col min-h-screen min-w-screen bg-neutral-900 p-6">
-                <h1 className="font-bold text-white text-2xl">That One Gym</h1>
-                <div className="flex flex-col items-center justify-center bg-neutral-900 my-auto">
+            <div
+                className="flex flex-col min-h-screen p-10"
+                style={{
+                    backgroundImage: "url('/images/landing.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                }}
+                >
+                <div className="absolute inset-0 bg-black/70 z-0" />
+                <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold">
+                    That One Gym
+                </Link>
+                <div className="flex flex-col items-center justify-center my-auto z-10">
                     <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to add a gym</h1>
                     <button
                         onClick={() => signIn()}
@@ -65,9 +76,19 @@ export default function AddGymPage() {
         );
     }
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900">
-            <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">Add a Gym</h1>
-            <form className="mt-8 w-full max-w-md"
+
+        
+        <div
+            className="flex flex-col items-center justify-center min-h-screen"
+            style={{
+                backgroundImage: "url('/images/landing.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}
+            >
+            <div className="absolute inset-0 bg-black/70 z-0" />
+            <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold z-10">Add a Gym</h1>
+            <form className="mt-8 w-1/2 min-w-70 max-w-150 z-10"
                   onSubmit={(e) => {
                       e.preventDefault();
                       handleSubmit(e as FormEvent<HTMLFormElement>);
@@ -81,13 +102,13 @@ export default function AddGymPage() {
                         id="gymName"
                         name="gymName"
                         className="w-full p-2 bg-neutral-800 text-white rounded-lg"
-                        placeholder="Enter gym name"
+                        placeholder="Name"
                         required
                         autoComplete="off"
                     />
                 </div>
                 <div className="flex flex-col mb-4 gap-2">
-                    <label className="block text-white" htmlFor="location">Location</label>
+                    <label className="block text-white" htmlFor="location">Address</label>
                     <input
                         type="text"
                         id="address-line1"
@@ -138,11 +159,11 @@ export default function AddGymPage() {
                     className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     Add Gym
-                </button>
-            </form>
-            <div className="mt-4 text-white">
+                </button>               
+            </form>           
+            <div className="mt-4 text-white z-10 lg:text-xl">
                 <p>{message}</p>
-            </div>
+            </div>         
         </div>
     );
 }
