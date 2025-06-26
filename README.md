@@ -98,7 +98,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-## 🙌 Acknowledgements
+## Acknowledgements
 
 - Inspired by lifters who have wasted too many drop-ins at commercial gyms with no squat rack
 - Background image generated with DALL·E
