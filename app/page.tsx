@@ -54,7 +54,7 @@ export default function Home() {
       <main className="relative flex flex-col text-white w-full text-center items-center flex-grow justify-center">
         <div className="absolute inset-0 bg-black/70 z-0" />
         
-        <div className="relative z-10 flex flex-col gap-8 items-center w-3/5 pb-20">
+        <div className="relative z-10 flex flex-col gap-8 items-center w-3/5 min-w-80 pb-20">
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
           <form className="relative w-full">
             <input
