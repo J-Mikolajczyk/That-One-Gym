@@ -65,7 +65,7 @@ export default function Home() {
               className="h-15 bg-neutral-800 p-2 rounded-lg w-full max-w-150 min-w-80"
             />
             {showDropdown && (
-              <ul className="cursor-pointer p-2 text-sm absolute top-full left-1/2 transform -translate-x-1/2 bg-white hover:bg-neutral-200 shadow-md rounded-lg mt-2 text-black z-20 h-10 overflow-y-auto w-full max-w-150 min-w-80 flex items-center">
+              <ul className="cursor-pointer text-sm absolute top-full left-1/2 transform -translate-x-1/2 bg-white hover:bg-neutral-200 shadow-md rounded-lg mt-2 text-black z-20 h-10 overflow-y-auto w-full max-w-150 min-w-80 flex items-center">
                 {suggestions.length > 0 ? (
                   suggestions.map((gym) => (
                     <li
@@ -77,7 +77,7 @@ export default function Home() {
                     </li>
                   ))
                 ) : (
-                  <li className=" text-neutral-800"
+                  <li className=" text-left text-neutral-800 m-2 w-full"
                       onClick={(e) => {
                             e.preventDefault();
                             if (session) {
