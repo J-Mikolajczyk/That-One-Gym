@@ -1,23 +1,23 @@
-# 🏋️ That One Gym
+# That One Gym
 
 **That One Gym** is a web application that helps users find gyms based on the equipment they want to train with. Whether you're looking for a power rack, a belt squat machine, or calibrated plates, this app helps lifters locate the perfect gym — verified by the strength community.
 
-> ⚠️ This project is a **work in progress** and under active development. Features are being added weekly.
+> This project is a **work in progress** and under active development. Features are being added weekly.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔍 Search gyms by name, city, or ZIP
-- 🏋️ Filter gyms by equipment (e.g., deadlift platform, hack squat, etc.)
-- ✅ Equipment lists are **user-verified** for accuracy
-- 👤 Gym submission restricted to logged-in users
-- 📸 Gym listings can include community photos and reviews *(planned)*
-- 📍 Map-based search *(planned)*
+- Search gyms by name, city, or ZIP
+- Filter gyms by equipment (e.g., deadlift platform, hack squat, etc.)
+- Equipment lists are **user-verified** for accuracy
+- Gym submission restricted to logged-in users
+- Gym listings can include community photos and reviews *(planned)*
+- Map-based search *(planned)*
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 | Tech         | Purpose                     |
 |--------------|-----------------------------|
@@ -31,7 +31,7 @@
 
 ---
 
-## 🚧 Project Structure (WIP)
+## Project Structure (WIP)
 
 ```
 /app
@@ -44,7 +44,7 @@
 
 ---
 
-## 🛠️ Local Development
+## Local Development
 
 ### 1. Clone the Repo
 ```bash
@@ -79,7 +79,7 @@ npm run dev
 
 ---
 
-## 🧪 Current Progress
+## Current Progress
 
 - [x] Landing page with background image and search bar
 - [x] Gym autocomplete with dropdown suggestions
@@ -92,7 +92,7 @@ npm run dev
 
 ---
 
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
