@@ -3,9 +3,18 @@ import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
+  const [hasUpdated, setHasUpdated] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated" && !hasUpdated && !session?.user?.id) {
+      update();
+      setHasUpdated(true);
+    }
+  }, [status, session?.user?.id, update, hasUpdated]);
 
   const [query, setQuery] = useState('');
+  
   type Gym = {
     id: string | number;
     name: string;
@@ -19,9 +28,10 @@ export default function Home() {
     const delayDebounce = setTimeout(async () => {
       if (query.trim()) {
         try {
-          const res = await fetch(`/api/search-gyms?q=${encodeURIComponent(query)}`);
+          const res = await fetch(`/api/gyms?q=${encodeURIComponent(query)}`);
           if (!res.ok) throw new Error('API failed');
           const data = await res.json();
+          console.log(data);
           setSuggestions(data);
         } catch (err) {
           setSuggestions([]);

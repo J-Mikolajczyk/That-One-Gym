@@ -1,10 +1,18 @@
 'use client';
 import { signIn, useSession } from "next-auth/react";
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Link from "next/link";
 
 export default function AddGymPage() {
-    const { data: session } = useSession();
+    const { data: session, status, update } = useSession();
+    const [hasUpdated, setHasUpdated] = useState(false);
+    
+    useEffect(() => {
+        if (status === "authenticated" && !hasUpdated && !session?.user?.id) {
+          update();
+          setHasUpdated(true);
+        }
+    }, [status, session?.user?.id, update, hasUpdated]);
 
     const [message, setMessage] = useState('');
     
@@ -17,6 +25,7 @@ export default function AddGymPage() {
         const city = formData.get('city') as string;
         const state = formData.get('state') as string;
         const zip = formData.get('zip') as string;
+        const userId = session?.user?.id;
         
         try {
             const response = await fetch('/api/gyms', {
@@ -33,18 +42,19 @@ export default function AddGymPage() {
                         state,
                         zip,
                     },
+                    userId: userId
                 }),
             });
             if (!response.ok) {
-                setMessage('Failed to add gym' + response.statusText);
-                throw new Error('Failed to add gym');
+                console.log(response)
+                throw new Error('Response not OK: ' + response.status);
             }
             const result = await response.json();
             setMessage('Gym added successfully');
             console.log('Gym added successfully:', result);
         } catch (error) {
-            setMessage('Error adding gym' + error);
-            console.error('Error adding gym:', error);
+            setMessage(error+"");
+            console.error(error);
         }
     }
 
