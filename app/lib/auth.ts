@@ -1,4 +1,3 @@
-// lib/auth.ts
 import { AuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -14,4 +13,21 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_SECRET!,
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?.id) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    }
+  },
 };

@@ -3,7 +3,13 @@ import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+
+  useEffect(() => {
+  if (session && !session.user?.id) {
+    update();
+  }
+  }, [session, update]);
 
   const [query, setQuery] = useState('');
   type Gym = {
@@ -19,7 +25,7 @@ export default function Home() {
     const delayDebounce = setTimeout(async () => {
       if (query.trim()) {
         try {
-          const res = await fetch(`/api/search-gyms?q=${encodeURIComponent(query)}`);
+          const res = await fetch(`/api/gyms?q=${encodeURIComponent(query)}`);
           if (!res.ok) throw new Error('API failed');
           const data = await res.json();
           setSuggestions(data);
