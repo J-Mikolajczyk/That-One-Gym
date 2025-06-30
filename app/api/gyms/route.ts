@@ -1,9 +1,11 @@
 import { NextRequest } from "next/server";
+import { neon } from "@neondatabase/serverless";
 
 export async function GET(req: NextRequest) {
-  // This is a placeholder for the GET request handler.
-  // Fetch gyms from the database.
-  // For now, it just returns a simple JSON response.
+  const sql = neon(process.env.DATABASE_URL as string);
+  const response = await sql`SELECT * FROM gyms;`;
+
+  console.log("Response from database:", response);
   return new Response(JSON.stringify({ message: "gyms route works" }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
@@ -48,7 +50,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Save the gym to the database
+    const sql = neon(process.env.DATABASE_URL as string);
+    const response = await sql`
+      INSERT INTO gyms (name, address, created_by)
+      VALUES (${gymName}, ${address}, ${userId});
+    `;
 
+    console.log("Gym added to database:", response);
+
+    if (!response || response.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Failed to add gym" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ message: "Gym added successfully", gymName, address }),
       {
