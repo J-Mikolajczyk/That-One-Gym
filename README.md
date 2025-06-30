@@ -23,8 +23,7 @@
 |--------------|-----------------------------|
 | Next.js      | Frontend & API              |
 | TypeScript   | Type safety                 |
-| PostgreSQL   | Relational DB               |
-| Prisma       | Database ORM                |
+| Neon         | PostgreSQL DB               |
 | NextAuth.js  | Authentication              |
 | Tailwind CSS | Styling                     |
 | Netlify      | Hosting                     |
@@ -37,9 +36,8 @@
 /app
   /auth                → NextAuth routes
   /gyms                → Gym pages (add, view, etc.)
-  /api/search-gyms     → Search API
 /public/images         → Backgrounds, logos
-/lib                   → Prisma, auth config
+/lib                   → Auth config
 ```
 
 ---
