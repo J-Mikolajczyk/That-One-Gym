@@ -5,7 +5,6 @@ export async function GET(req: NextRequest) {
   const sql = neon(process.env.DATABASE_URL as string);
   const response = await sql`SELECT * FROM gyms;`;
 
-  console.log("Response from database:", response);
   return new Response(JSON.stringify({ response }), {
     status: 200,
     headers: { "Content-Type": "application/json" },

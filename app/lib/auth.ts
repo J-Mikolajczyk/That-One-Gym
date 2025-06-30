@@ -3,8 +3,15 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import NeonAdapter from "@auth/neon-adapter";
 import { Pool } from "@neondatabase/serverless";
+import { getUserByEmail, linkAccount } from "@/app/lib/db/user";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+type GitHubEmail = {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+}
 
 export const authOptions: AuthOptions = {
   adapter: NeonAdapter(pool),
@@ -34,16 +41,12 @@ export const authOptions: AuthOptions = {
             },
           });
 
-          const emails = await res.json(); 
-          if (Array.isArray(emails)) {
-            const primaryEmail = emails.find(
-              (e: any) => e.primary && e.verified
-            );
-            if (primaryEmail) {
-              user.email = primaryEmail.email;
-            }
-          }
-          if (!user.email) {
+          const emails: GitHubEmail[] = await res.json(); 
+          const primaryEmail = emails.find((e) => e.primary && e.verified);
+          if (primaryEmail) {
+            profile.email = primaryEmail.email;
+          } 
+          else {
             console.error("No verified primary email found for GitHub user");
             return false; 
           }
@@ -51,6 +54,16 @@ export const authOptions: AuthOptions = {
         } catch (err) {
           console.error("Error fetching GitHub emails", err);
           return false;
+        }
+      }
+
+      if(user?.email) {
+        const existingUser = await getUserByEmail(user.email);
+        if (existingUser && existingUser.id !== user.id) {
+          if (account) {
+            await linkAccount(existingUser.id, account);
+          }
+          user.id = existingUser.id;
         }
       }
 
