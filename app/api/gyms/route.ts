@@ -52,6 +52,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { gymName, address } = body;
 
+    gymName.trim();
+    address.line1.trim();
+    address.line2.trim();
+    address.city.trim();
+    address.state.trim();
+    address.zip.trim();
+
     if (!gymName || !address || !address.line1 || !address.city || !address.state || !address.zip || !userId) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
