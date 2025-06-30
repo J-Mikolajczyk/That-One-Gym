@@ -70,18 +70,26 @@ export default function Home() {
       <main className="relative flex flex-col text-white w-full text-center items-center flex-grow justify-center">
         
         <div className="relative z-10 flex flex-col gap-8 items-center w-3/5 min-w-80 pb-20">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
-          <form className="relative w-2/3 min-w-80 flex flex-col gap-1.5 justify-center items-center">
-            <div className="relative w-full">
+          <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
+          <form className="relative w-full min-w-80 flex flex-col gap-1.5 justify-center items-center">
+            <div className="relative w-full gap-2">
               <input
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (suggestions.length === 1) {
+                      handleSelect(suggestions[0]);
+                    } else if (suggestions.length > 1) {
+                      // Open filter menu and show gyms on side?
+                    }
+                  }
+                }}
                 placeholder="Search by city, ZIP, or gym name..."
                 className="h-15 bg-neutral-800 p-2 rounded-lg w-full"
               />
-              
-              
               {showDropdown && (
                 <ul className="absolute w-full bg-neutral-800 mt-1 max-h-60 overflow-y-auto rounded-lg z-50">
                   {suggestions.map((gym) => (
