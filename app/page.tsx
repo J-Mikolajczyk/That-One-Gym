@@ -69,6 +69,7 @@ export default function Home() {
         <div className="relative z-10 flex flex-col gap-8 items-center w-3/5 min-w-80 pb-20">
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
           <form className="relative w-2/3 min-w-80 flex flex-col gap-1.5 justify-center items-center">
+            <div className="relative w-full">
               <input
                 type="text"
                 value={query}
@@ -76,19 +77,20 @@ export default function Home() {
                 placeholder="Search by city, ZIP, or gym name..."
                 className="h-15 bg-neutral-800 p-2 rounded-lg w-full"
               />
+              
               {showDropdown && (
-                <ul className='w-full'>
+                <ul className="absolute w-full bg-neutral-800 mt-1 max-h-60 overflow-y-auto rounded-lg z-50">
                   {suggestions.map((gym) => (
                     <li
                       key={gym.id}
-                      className="text-left bg-neutral-800 p-2 h-10 hover:bg-neutral-900 rounded-lg transition-colors duration-200 mb-1 cursor-pointer"
+                      className="text-left p-2 h-10 hover:bg-neutral-700 transition-colors duration-200 mb-1 cursor-pointer"
                       onClick={() => handleSelect(gym)}
                     >
                       {gym.name} - {gym.address.city}, {gym.address.state} {gym.address.zip}
                     </li>
                   ))}
                   <li
-                    className="text-left bg-neutral-800 p-2 h-10 hover:bg-neutral-900 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="text-left p-2 h-10 hover:bg-neutral-700 transition-colors duration-200 cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       if (session) {
@@ -106,6 +108,7 @@ export default function Home() {
                   </li>
                 </ul>
               )}
+            </div>
           </form>
         </div>
       </main>

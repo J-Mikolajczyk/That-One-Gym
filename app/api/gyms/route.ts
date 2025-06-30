@@ -3,7 +3,27 @@ import { neon } from "@neondatabase/serverless";
 
 export async function GET(req: NextRequest) {
   const sql = neon(process.env.DATABASE_URL as string);
-  const response = await sql`SELECT * FROM gyms;`;
+  const searchParams = req.nextUrl.searchParams;
+  const query = searchParams.get('q')?.trim();
+
+  if (!query) {
+    return new Response(JSON.stringify({ response: [] }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const response = await sql`
+    SELECT * FROM gyms
+    WHERE similarity(name, ${query}) > 0.3
+    OR similarity(address->>'line1', ${query}) > 0.3
+    OR similarity(address->>'line2', ${query}) > 0.3
+    OR similarity(address->>'city', ${query}) > 0.3
+    OR similarity(address->>'state', ${query}) > 0.3
+    OR similarity(address->>'zip', ${query}) > 0.3
+    ORDER BY similarity(name, ${query}) DESC
+    LIMIT 10;
+  `;
 
   return new Response(JSON.stringify({ response }), {
     status: 200,
