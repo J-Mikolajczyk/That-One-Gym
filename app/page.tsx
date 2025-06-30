@@ -64,6 +64,9 @@ export default function Home() {
       }}
     >
       <div className="absolute inset-0 bg-black/70 z-0" />
+      <header className="w-full text-white font-bold z-1 text-2xl p-10">
+        That One Gym
+      </header>
       <main className="relative flex flex-col text-white w-full text-center items-center flex-grow justify-center">
         
         <div className="relative z-10 flex flex-col gap-8 items-center w-3/5 min-w-80 pb-20">
@@ -77,6 +80,7 @@ export default function Home() {
                 placeholder="Search by city, ZIP, or gym name..."
                 className="h-15 bg-neutral-800 p-2 rounded-lg w-full"
               />
+              
               
               {showDropdown && (
                 <ul className="absolute w-full bg-neutral-800 mt-1 max-h-60 overflow-y-auto rounded-lg z-50">
