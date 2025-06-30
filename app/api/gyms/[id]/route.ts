@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server";
 import { neon } from "@neondatabase/serverless";
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET( req: NextRequest, context: { params: { id: string } }) {
   const sql = neon(process.env.DATABASE_URL as string);
-
+  
   try {
-    const params = await context.params;
-    const id = params.id;
+    const { id } = await context.params;
 
     const result = await sql`SELECT * FROM gyms WHERE id = ${id}`;
 

@@ -1,11 +1,8 @@
 import { notFound } from "next/navigation";
 
-type Props = {
-  params: { id: string };
-};
+export default async function GymsPage({ params }: {params: Promise<{ id: string }>}) {
 
-export default async function GymsPage({ params }: Props) {
-  const { id } = params;
+  const id = (await params)?.id;
 
   const res = await fetch(`${process.env.NEXTAUTH_URL || ""}/api/gyms/${encodeURIComponent(id)}`, {
   });
@@ -15,12 +12,10 @@ export default async function GymsPage({ params }: Props) {
   }
 
   const gym = await res.json();
-
-  console.log(gym);
-
+  
   return (
     <div
-      className="flex flex-col h-screen w-screen p-30"
+      className="flex flex-col h-screen w-screen p-10 lg:p-20"
       style={{
         backgroundImage: "url('/images/landing.png')",
         backgroundSize: "cover",
@@ -28,8 +23,8 @@ export default async function GymsPage({ params }: Props) {
       }}
     >
       <div className="absolute inset-0 bg-black/70 z-0" />
-      <div className="z-1 text-2xl sm:text-4xl md:text-5xl lg:text-6xl ">
-        <h1 className="text-white  font-bold text-4xl sm:text-6xl md:text-7xl lg:text-8xl">{gym.name || id}</h1>
+      <div className="z-1 text-2xl sm:text-4xl md:text-5xl lg:text-5xl ">
+        <h1 className="text-white  font-bold text-4xl sm:text-6xl md:text-6xl lg:text-8xl">{gym.name || id}</h1>
         <h1 className="text-white  font-bold">{gym.address.line1} {gym.address.line2}</h1>
         <h1 className="text-white  font-bold">{gym.address.city}, {gym.address.state} {gym.address.zip}</h1>
       </div>
