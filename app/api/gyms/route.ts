@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const response = await sql`SELECT * FROM gyms;`;
 
   console.log("Response from database:", response);
-  return new Response(JSON.stringify({ message: "gyms route works" }), {
+  return new Response(JSON.stringify({ response }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
@@ -14,8 +14,24 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const emailsql = neon(process.env.DATABASE_URL as string);
+    const emailResponse = await emailsql`
+      SELECT id FROM users WHERE email = ${req.headers.get("email")};
+    `;
+
+    if (!emailResponse || emailResponse.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "User not found" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    const userId = emailResponse[0].id;
+    
     const body = await req.json();
-    const { gymName, address, userId } = body;
+    const { gymName, address } = body;
 
     if (!gymName || !address || !address.line1 || !address.city || !address.state || !address.zip || !userId) {
       return new Response(
@@ -49,11 +65,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save the gym to the database
     const sql = neon(process.env.DATABASE_URL as string);
     const response = await sql`
       INSERT INTO gyms (name, address, created_by)
-      VALUES (${gymName}, ${address}, ${userId});
+      VALUES (${gymName}, ${address}, ${userId})
+      RETURNING id;
     `;
 
     console.log("Gym added to database:", response);
