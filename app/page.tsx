@@ -1,15 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function Home() {
-  const { data: session, update } = useSession();
-
-  useEffect(() => {
-  if (session && !session.user?.id) {
-    update();
-  }
-  }, [session, update]);
+  const { data: session } = useSession();
 
   const [query, setQuery] = useState('');
   type Gym = {
