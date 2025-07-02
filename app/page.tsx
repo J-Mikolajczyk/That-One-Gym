@@ -222,7 +222,7 @@ export default function Home() {
               </div>
             ))}
 
-            {(query.trim() || zip || radius > 0 || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks) && (
+            {(query.trim() || zip || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks) && (
               <div
                 className="flex flex-col items-center justify-center h-30 p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
                 onClick={() => addGym()}
@@ -233,6 +233,10 @@ export default function Home() {
             )}
           </div>
 
+          { !query.trim() && !zip && !equipment.cableMachines && !equipment.dumbbells && !equipment.freeWeights && !equipment.powerRacks &&
+
+            <h1 className="mt-15 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
+          }
           
       </main>
 
