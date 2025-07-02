@@ -1,29 +1,58 @@
 import { NextRequest } from "next/server";
 import { neon } from "@neondatabase/serverless";
+import zipcodes from "zipcodes";
+
 
 export async function GET(req: NextRequest) {
   const sql = neon(process.env.DATABASE_URL as string);
   const searchParams = req.nextUrl.searchParams;
   const query = searchParams.get('q')?.trim();
+  const zip = searchParams.get('zip')?.trim();
+  const radius = searchParams.get('radius')?.trim();
+  const equipment = searchParams.get('equipment')?.trim();
 
-  if (!query) {
-    return new Response(JSON.stringify({ response: [] }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+  let zipFilter: string[] = [];
+  if (zip && zipcodes.lookup(zip)) {
+    const radiusResult = zipcodes.radius(zip, Number(radius));
+    zipFilter = Array.isArray(radiusResult)
+      ? (typeof radiusResult[0] === "object"
+          ? (radiusResult as any[]).map(z => z.zip)
+          : radiusResult)
+      : [];
   }
 
-  const response = await sql`
-    SELECT * FROM gyms
-    WHERE similarity(name, ${query}) > 0.3
-    OR similarity(address->>'line1', ${query}) > 0.3
-    OR similarity(address->>'line2', ${query}) > 0.3
-    OR similarity(address->>'city', ${query}) > 0.3
-    OR similarity(address->>'state', ${query}) > 0.3
-    OR similarity(address->>'zip', ${query}) > 0.3
-    ORDER BY similarity(name, ${query}) DESC
-    LIMIT 10;
-  `;
+  let response;
+
+  if (query && query.trim() !== '') {
+    if (!zipFilter || zipFilter.length === 0) {
+      response = await sql`
+        SELECT * FROM gyms
+        WHERE similarity(name, ${query}) > 0.3
+        ORDER BY similarity(name, ${query}) DESC
+        LIMIT 10;
+      `;    
+    } else {
+      response = await sql`
+        SELECT * FROM gyms
+        WHERE 
+          address->>'zip' = ANY(${zipFilter})
+          AND (
+            similarity(name, ${query}) > 0.3
+            OR similarity(address->>'line1', ${query}) > 0.3
+            OR similarity(address->>'city', ${query}) > 0.3
+          )
+        ORDER BY similarity(name, ${query}) DESC
+        LIMIT 10;
+      `;
+    }
+  } else {
+    response = await sql`
+      SELECT * FROM gyms
+      WHERE 
+        address->>'zip' = ANY(${zipFilter})
+      LIMIT 10;
+    `;
+  }
 
   return new Response(JSON.stringify({ response }), {
     status: 200,
