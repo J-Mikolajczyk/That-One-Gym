@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   const { data: session } = useSession();
@@ -21,7 +22,8 @@ export default function Home() {
 
   const [zip, setZip] = useState('');
   const [radius, setRadius] = useState(1);
-  const [equipment, setEquipment] = useState({
+  type EquipmentKey = 'freeWeights' | 'powerRacks' | 'cableMachines' | 'dumbbells';
+  const [equipment, setEquipment] = useState<Record<EquipmentKey, boolean>>({
     freeWeights: false,
     powerRacks: false,
     cableMachines: false,
@@ -31,6 +33,16 @@ export default function Home() {
 
   const [suggestions, setSuggestions] = useState<Gym[]>([]);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+
+   const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
   
   const addGym = () => {
@@ -75,7 +87,7 @@ export default function Home() {
 
   return (
     <div
-      className="flex flex-col items-center min-h-screen"
+      className="flex flex-col items-center min-h-screen overflow-hidden"
       style={{
         backgroundImage: "url('/images/landing.png')",
         backgroundSize: "cover",
@@ -86,57 +98,81 @@ export default function Home() {
       <header className="w-full text-white font-bold z-1 text-2xl p-10">
         That One Gym
       </header>
-      <div
-          className={`
-            font-bold absolute flex flex-col text-white w-full md:w-1/4 left-0 bottom-0 h-8/9 pl-10 pr-10 md:pr-0 gap-4
-            transform transition-transform duration-300 ease-in-out z-2
-            ${showFilterMenu ? 'translate-x-0' : '-translate-x-full'}
-            bg-black md:bg-transparent
-          `}
-        >
+      <aside
+        className={`
+          fixed top-0 left-0 bottom-0 z-40
+          bg-black text-white font-bold flex flex-col p-8 gap-6
+          transition-transform duration-300 ease-in-out
+          ${isMobile ? 'w-full' : 'w-1/4'}
+          ${
+            showFilterMenu
+              ? 'translate-x-0'
+              : isMobile
+              ? '-translate-x-full'
+              : '-translate-x-full'
+          }
+        `}
+        style={{ height: '100vh' }}
+        aria-hidden={!showFilterMenu}
+      >
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Filters</h2>
-          <button onClick={() => setShowFilterMenu(false)} className="text-gray-400 hover:text-white">✕</button>
+          <h2 className="text-2xl font-bold">Filters</h2>
+          <button
+            onClick={() => setShowFilterMenu(false)}
+            className="text-gray-400 hover:text-white text-3xl leading-none"
+            aria-label="Close filter menu"
+          >
+            &times;
+          </button>
         </div>
 
-        <label className="text-sm">ZIP Code</label>
-        <input
-          type="text"
-          value={zip}
-          onChange={(e) => setZip(e.target.value)}
-          className="bg-neutral-800 p-2 rounded text-white w-full"
-        />
-
-        <label className="text-sm">Radius: {radius} mi</label>
-        <input
-          type="range"
-          min={1}
-          max={100}
-          value={radius}
-          onChange={(e) => setRadius(Number(e.target.value))}
-          className="w-full"
-        />
-
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          {Object.keys(equipment).map((key) => (
-            <label key={key} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={equipment[key as keyof typeof equipment]}
-                onChange={() =>
-                  setEquipment((prev) => ({
-                    ...prev,
-                    [key]: !prev[key as keyof typeof equipment],
-                  }))
-                }
-              />
-              {key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase())}
-            </label>
-          ))}
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-semibold" htmlFor="zip-input">
+            ZIP Code
+          </label>
+          <input
+            id="zip-input"
+            type="text"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            className="bg-neutral-800 p-2 rounded text-white w-full"
+            placeholder="Enter ZIP code"
+          />
         </div>
-      </div>
+
+        <div className="flex flex-col gap-3">
+          <label htmlFor="radius-range" className="text-sm font-semibold">
+            Radius: {radius} mi
+          </label>
+          <input
+            id="radius-range"
+            type="range"
+            min={1}
+            max={100}
+            value={radius}
+            onChange={(e) => setRadius(Number(e.target.value))}
+            className="w-full"
+          />
+        </div>
+        {Object.entries(equipment).map(([key, value]) => (
+          <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={value}
+              onChange={() =>
+                setEquipment((prev) => ({
+                  ...prev,
+                  [key as EquipmentKey]: !prev[key as EquipmentKey],
+                }))
+              }
+              className="cursor-pointer"
+            />
+            {key
+              .replace(/([A-Z])/g, ' $1')
+              .replace(/^./, (s) => s.toUpperCase())}
+          </label>
+        ))}
+      </aside>
 
       <main 
         className={`z-1 flex flex-col text-white text-center flex-grow gap-8 w-3/5 min-w-80 transition-transform duration-300 ${
@@ -165,18 +201,18 @@ export default function Home() {
                   className="flex items-center justify-center h-15 bg-neutral-800 p-2 hover:bg-neutral-700 rounded-lg w-1/10 cursor-pointer transition-colors duration-200"
                   onClick={() => {setShowFilterMenu(!showFilterMenu)}}
                 >
-                  <img src="/filter_icon.svg" alt="Filter" className="w-5 h-5" />
+                  <Image src="/filter_icon.svg" alt="Filter" width={20} height={20} />
                 </button>
 
               </div>
             </div>
           </form>
           
-          <div className="flex flex-wrap w-full justify-between gap-y-2">
+          <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {suggestions.map((gym) => (
               <div
                 key={gym.id}
-                className="flex flex-col items-center justify-center w-full h-30 sm:w-[49%] lg:w-[33%] p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
+                className="flex flex-col items-center justify-center h-30 p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
                 onClick={() => handleSelect(gym)}
               >
                 <p>{gym.name}</p>
@@ -188,19 +224,15 @@ export default function Home() {
 
             {(query.trim() || zip || radius > 0 || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks) && (
               <div
-                className="flex flex-col items-center justify-center w-full h-30 sm:w-[49%] lg:w-[33%] p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
+                className="flex flex-col items-center justify-center h-30 p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
                 onClick={() => addGym()}
               >
-                <p>Can't find what you're looking for?</p>
+                <p>Can&apos;t find what you&apos;re looking for?</p>
                 <p>Add a gym here</p>
               </div>
             )}
           </div>
-          {!query.trim() && !zip && radius == 0 && !equipment.cableMachines && !equipment.dumbbells && !equipment.freeWeights && !equipment.powerRacks &&
-              <h1 className="text-2xl sm:text-4xl md:text-4xl lg:text-5xl font-bold">
-                No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.
-              </h1> 
-          }
+
           
       </main>
 

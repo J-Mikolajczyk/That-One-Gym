@@ -10,15 +10,20 @@ export async function GET(req: NextRequest) {
   const zip = searchParams.get('zip')?.trim();
   const radius = searchParams.get('radius')?.trim();
   const equipment = searchParams.get('equipment')?.trim();
+  type ZipObj = { zip: string };
 
   let zipFilter: string[] = [];
   if (zip && zipcodes.lookup(zip)) {
     const radiusResult = zipcodes.radius(zip, Number(radius));
-    zipFilter = Array.isArray(radiusResult)
-      ? (typeof radiusResult[0] === "object"
-          ? (radiusResult as any[]).map(z => z.zip)
-          : radiusResult)
-      : [];
+    if (Array.isArray(radiusResult)) {
+      if (typeof radiusResult[0] === "object" && radiusResult[0] !== null && "zip" in radiusResult[0]) {
+        zipFilter = (radiusResult as ZipObj[]).map(z => z.zip);
+      } else {
+        zipFilter = radiusResult as string[];
+      }
+    } else {
+      zipFilter = [];
+    }
   }
 
   let response;
