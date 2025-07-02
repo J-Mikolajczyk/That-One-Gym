@@ -2,15 +2,12 @@
 import { notFound } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { Gym, User } from "@/app/types/admin"
 
 export default function Admin() {
   const { data: session, status } = useSession();
 
-  const [adminData, setAdminData] = useState<{ users: any[]; gyms: any[] }>({ users: [], gyms: [] });
-
-  if (!session || session.user.role !== 'admin') {
-    return notFound();
-  }
+  const [adminData, setAdminData] = useState<{ users: User[]; gyms: Gym[] }>({ users: [], gyms: [] });
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role === "admin") {
@@ -19,6 +16,10 @@ export default function Admin() {
         .then(data => setAdminData(data));
     }
   }, [status, session]);
+
+  if (!session || session.user.role !== 'admin') {
+    return notFound();
+  }
 
   return (
     <div
