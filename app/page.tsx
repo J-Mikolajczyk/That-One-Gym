@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   const [zip, setZip] = useState('');
-  const [radius, setRadius] = useState(1);
+  const [radius, setRadius] = useState(10);
   type EquipmentKey = 'freeWeights' | 'powerRacks' | 'cableMachines' | 'dumbbells';
   const [equipment, setEquipment] = useState<Record<EquipmentKey, boolean>>({
     freeWeights: false,
@@ -29,6 +29,7 @@ export default function Home() {
     cableMachines: false,
     dumbbells: false,
   });
+  const [is247, setIs247] = useState(false);
 
 
   const [suggestions, setSuggestions] = useState<Gym[]>([]);
@@ -66,6 +67,7 @@ export default function Home() {
         if (zip) params.append('zip', zip);
         if (radius) params.append('radius', radius.toString());
         if (equipmentParams) params.append(equipmentParams, '');
+        if (is247) params.append('is247', 'true');
 
         const url = `/api/gyms?${params.toString()}`;
 
@@ -79,7 +81,7 @@ export default function Home() {
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [query, zip, radius, equipment]);
+  }, [query, zip, radius, equipment, is247]);
 
   const handleSelect = (gym: Gym) => {
     window.location.href = `/gyms/${gym.id}`;
@@ -148,7 +150,7 @@ export default function Home() {
             id="radius-range"
             type="range"
             min={1}
-            max={100}
+            max={50}
             value={radius}
             onChange={(e) => setRadius(Number(e.target.value))}
             className="w-full"
@@ -172,6 +174,18 @@ export default function Home() {
               .replace(/^./, (s) => s.toUpperCase())}
           </label>
         ))}
+        <label key={"is247"} className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={is247}
+              onChange={() =>
+                setIs247(!is247)
+              }
+              className="cursor-pointer"
+            />
+            24/7
+          </label>
+        
       </aside>
 
       <main 
@@ -222,7 +236,7 @@ export default function Home() {
               </div>
             ))}
 
-            {(query.trim() || zip || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks) && (
+            {(query.trim() || zip || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks || is247) && (
               <div
                 className="flex flex-col items-center justify-center h-30 p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
                 onClick={() => addGym()}
@@ -233,14 +247,14 @@ export default function Home() {
             )}
           </div>
 
-          { !query.trim() && !zip && !equipment.cableMachines && !equipment.dumbbells && !equipment.freeWeights && !equipment.powerRacks &&
+          { !query.trim() && !zip && !equipment.cableMachines && !equipment.dumbbells && !equipment.freeWeights && !equipment.powerRacks && !is247 &&
 
             <h1 className="mt-15 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
           }
           
       </main>
 
-      <footer className="relative w-full text-center text-gray-400 text-sm py-4 z-1">
+      <footer className="w-full text-center text-gray-400 text-sm py-4 z-1">
           &copy; {new Date().getFullYear()} That One Gym. All rights reserved.
       </footer>
     </div>
