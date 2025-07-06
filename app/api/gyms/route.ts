@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const zip = searchParams.get('zip')?.trim();
   const radius = searchParams.get('radius')?.trim();
   const equipment = searchParams.get('equipment')?.trim();
+  const is247 = searchParams.get('is247')?.trim();
   type ZipObj = { zip: string };
 
   let zipFilter: string[] = [];
@@ -28,36 +29,54 @@ export async function GET(req: NextRequest) {
 
   let response;
 
-  if (query && query.trim() !== '') {
-    if (!zipFilter || zipFilter.length === 0) {
-      response = await sql`
-        SELECT * FROM gyms
-        WHERE similarity(name, ${query}) > 0.3
-        ORDER BY similarity(name, ${query}) DESC
-        LIMIT 10;
-      `;    
-    } else {
-      response = await sql`
-        SELECT * FROM gyms
-        WHERE 
-          address->>'zip' = ANY(${zipFilter})
-          AND (
-            similarity(name, ${query}) > 0.3
-            OR similarity(address->>'line1', ${query}) > 0.3
-            OR similarity(address->>'city', ${query}) > 0.3
-          )
-        ORDER BY similarity(name, ${query}) DESC
-        LIMIT 10;
-      `;
-    }
-  } else {
-    response = await sql`
-      SELECT * FROM gyms
-      WHERE 
-        address->>'zip' = ANY(${zipFilter})
-      LIMIT 10;
-    `;
+  const hasQuery = query && query.trim() !== '';
+  const hasZip = zipFilter && zipFilter.length > 0;
+  const hasOtherFilters = is247 || hasQuery || hasZip;
+
+  if (!hasOtherFilters) {
+    return new Response(JSON.stringify({ response }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   }
+
+  let whereClauses = [];
+
+  if (query && query.trim() !== '') {
+    const simClause = sql`
+      (
+        similarity(name, ${query}) > 0.3
+        OR similarity(address->>'line1', ${query}) > 0.3
+        OR similarity(address->>'city', ${query}) > 0.3
+      )
+    `;
+    whereClauses.push(simClause);
+  }
+
+  if (zipFilter && zipFilter.length > 0) {
+    const zipClause = sql`address->>'zip' = ANY(${zipFilter})`;
+    whereClauses.push(zipClause);
+  }
+
+  if (is247) {
+    whereClauses.push(sql`is_24_7 = true`);
+  }
+
+  let whereSql = sql``;
+  if (whereClauses.length > 0) {
+    whereSql = sql`WHERE ${whereClauses[0]}`;
+    for (let i = 1; i < whereClauses.length; i++) {
+      whereSql = sql`${whereSql} AND ${whereClauses[i]}`;
+    }
+  }
+
+  response = await sql`
+    SELECT * FROM gyms
+    ${whereSql}
+    ${query ? sql`ORDER BY similarity(name, ${query}) DESC` : sql``}
+    LIMIT 10;
+  `;
+
 
   return new Response(JSON.stringify({ response }), {
     status: 200,
@@ -154,7 +173,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error adding gym:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to add gym" }),
+      JSON.stringify({ error: "Failed to add gym"}),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
