@@ -1,21 +1,45 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { signIn, useSession } from "next-auth/react";
-import { useState, FormEvent, use } from "react";
 import Link from "next/link";
 
 export default function AddGymPage() {
     const { data: session, update } = useSession();
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
-      if (session && !session.user?.id) {
-        update();
-      }
-      }, [session, update]);
+        if (session && !session.user?.id) {
+            update();
+        }
+    }, [session, update]);
 
+    if (!session) {
+        return (
+            <div
+                className="flex flex-col min-h-screen p-10"
+                style={{
+                    backgroundImage: "url('/images/landing.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                }}
+            >
+                <div className="absolute inset-0 bg-black/70 z-0" />
+                <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold">
+                    That One Gym
+                </Link>
+                <div className="flex flex-col items-center justify-center my-auto z-10">
+                    <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to add a gym</h1>
+                    <button
+                        onClick={() => signIn()}
+                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
-    const [message, setMessage] = useState('');
-    
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -25,7 +49,7 @@ export default function AddGymPage() {
         const city = formData.get('city') as string;
         const state = formData.get('state') as string;
         const zip = formData.get('zip') as string;
-        
+
         try {
             console.log(session?.user?.id);
             const response = await fetch('/api/gyms', {
@@ -58,36 +82,7 @@ export default function AddGymPage() {
         }
     }
 
-
-    if (!session) {
-        return (
-            <div
-                className="flex flex-col min-h-screen p-10"
-                style={{
-                    backgroundImage: "url('/images/landing.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                }}
-                >
-                <div className="absolute inset-0 bg-black/70 z-0" />
-                <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold">
-                    That One Gym
-                </Link>
-                <div className="flex flex-col items-center justify-center my-auto z-10">
-                    <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to add a gym</h1>
-                    <button
-                        onClick={() => signIn()}
-                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Sign In
-                    </button>
-                </div>
-            </div>
-        );
-    }
     return (
-
-        
         <div
             className="flex flex-col items-center justify-center min-h-screen"
             style={{
@@ -95,15 +90,15 @@ export default function AddGymPage() {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}
-            >
+        >
             <div className="absolute inset-0 bg-black/70 z-0" />
             <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold z-10">Add a Gym</h1>
             <form className="mt-8 w-1/2 min-w-70 max-w-150 z-10"
-                  onSubmit={(e) => {
-                      e.preventDefault();
-                      handleSubmit(e as FormEvent<HTMLFormElement>);
-                  }}
-                  autoComplete="off"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSubmit(e as FormEvent<HTMLFormElement>);
+                }}
+                autoComplete="off"
             >
                 <div className="mb-4">
                     <label className="block text-white mb-2" htmlFor="gymName">Gym Name</label>
@@ -169,11 +164,11 @@ export default function AddGymPage() {
                     className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     Add Gym
-                </button>               
-            </form>           
+                </button>
+            </form>
             <div className="mt-4 text-white z-10 lg:text-xl">
                 <p>{message}</p>
-            </div>         
+            </div>
         </div>
     );
 }

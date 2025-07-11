@@ -1,24 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import Link from 'next/link';
 import Image from 'next/image';
+import { Gym } from './types/admin';
 
 export default function Home() {
   const { data: session } = useSession();
 
   const [query, setQuery] = useState('');
-  type Gym = {
-    id: string | number;
-    name: string;
-    address: {
-      city?: string;
-      state?: string;
-      zip?: string;
-      line1?: string;
-      line2?: string;
-    };
-  };
+  
 
   const [zip, setZip] = useState('');
   const [radius, setRadius] = useState(10);
