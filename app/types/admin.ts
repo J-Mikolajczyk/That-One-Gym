@@ -7,13 +7,16 @@ export type User = {
 };
 
 export type Gym = {
+  id: number;
   name: string;
   address: {
     line1: string;
+    line2: string;
     city: string;
     state: string;
     zip: string;
   };
   created_by: string;
   updated_at: string;
+  claimed_by: string;
 };
