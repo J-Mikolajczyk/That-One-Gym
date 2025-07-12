@@ -2,87 +2,93 @@ import { NextRequest } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import zipcodes from "zipcodes";
 
-
 export async function GET(req: NextRequest) {
   const sql = neon(process.env.DATABASE_URL as string);
   const searchParams = req.nextUrl.searchParams;
-  const query = searchParams.get('q')?.trim();
+  const query = searchParams.get('q')?.trim() || '';
   const zip = searchParams.get('zip')?.trim();
-  const radius = searchParams.get('radius')?.trim();
-  const equipment = searchParams.get('equipment')?.trim();
+  const radius = searchParams.get('radius')?.trim(); // allowed to be missing/defaulted
   const is247 = searchParams.get('is247')?.trim();
-  type ZipObj = { zip: string };
+
+  const featureKeys = ['powerRacks', 'cableMachines', 'deadliftPlatforms', 'barbells', 'dumbbells'];
+
+  const hasEquipmentFilters = featureKeys.some((key) => searchParams.get(key) === 'true');
+
+  // ✅ Early return if no meaningful search criteria
+  if (!query && !zip && is247 !== 'true' && !hasEquipmentFilters) {
+    return new Response(JSON.stringify({ response: [] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  function toSnakeCase(str: string) {
+    return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  }
+
+  const equipmentFiltersString = featureKeys
+    .filter((key) => searchParams.get(key) === 'true')
+    .map((key) => `e.${toSnakeCase(key)} = true`)
+    .join(' AND ');
 
   let zipFilter: string[] = [];
   if (zip && zipcodes.lookup(zip)) {
     const radiusResult = zipcodes.radius(zip, Number(radius));
     if (Array.isArray(radiusResult)) {
-      if (typeof radiusResult[0] === "object" && radiusResult[0] !== null && "zip" in radiusResult[0]) {
-        zipFilter = (radiusResult as ZipObj[]).map(z => z.zip);
+      if (typeof radiusResult[0] === 'object' && radiusResult[0] !== null && 'zip' in radiusResult[0]) {
+        zipFilter = (radiusResult as { zip: string }[]).map((z) => z.zip);
       } else {
         zipFilter = radiusResult as string[];
       }
-    } else {
-      zipFilter = [];
     }
   }
 
-  let response;
+  const otherFilters: string[] = [];
+  const params: string[] = [];
 
-  const hasQuery = query && query.trim() !== '';
-  const hasZip = zipFilter && zipFilter.length > 0;
-  const hasOtherFilters = is247 || hasQuery || hasZip;
-
-  if (!hasOtherFilters) {
-    return new Response(JSON.stringify({ response }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (query !== '') {
+    otherFilters.push(`(
+      similarity(gyms.name, $${params.length + 1}) > 0.3
+      OR similarity(gyms.address->>'line1', $${params.length + 1}) > 0.3
+      OR similarity(gyms.address->>'city', $${params.length + 1}) > 0.3
+    )`);
+    params.push(query);
   }
 
-  let whereClauses = [];
-
-  if (query && query.trim() !== '') {
-    const simClause = sql`
-      (
-        similarity(name, ${query}) > 0.3
-        OR similarity(address->>'line1', ${query}) > 0.3
-        OR similarity(address->>'city', ${query}) > 0.3
-      )
-    `;
-    whereClauses.push(simClause);
+  if (zipFilter.length > 0) {
+    const sanitizedZips = zipFilter.map((z) => `'${z}'`).join(', ');
+    otherFilters.push(`gyms.address->>'zip' IN (${sanitizedZips})`);
   }
 
-  if (zipFilter && zipFilter.length > 0) {
-    const zipClause = sql`address->>'zip' = ANY(${zipFilter})`;
-    whereClauses.push(zipClause);
+  if (is247 === 'true') {
+    otherFilters.push(`gyms.is_24_7 = true`);
   }
 
-  if (is247) {
-    whereClauses.push(sql`is_24_7 = true`);
+  let whereConditions = otherFilters;
+  if (equipmentFiltersString.length > 0) {
+    whereConditions.push(equipmentFiltersString);
   }
 
-  let whereSql = sql``;
-  if (whereClauses.length > 0) {
-    whereSql = sql`WHERE ${whereClauses[0]}`;
-    for (let i = 1; i < whereClauses.length; i++) {
-      whereSql = sql`${whereSql} AND ${whereClauses[i]}`;
-    }
-  }
+  const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+  const orderByClause = query !== '' ? `ORDER BY similarity(gyms.name, $1) DESC` : '';
 
-  response = await sql`
-    SELECT * FROM gyms
-    ${whereSql}
-    ${query ? sql`ORDER BY similarity(name, ${query}) DESC` : sql``}
+  const finalQuery = `
+    SELECT gyms.*
+    FROM gyms
+    JOIN gym_equipment_availability e ON gyms.id = e.gym_id
+    ${whereClause}
+    ${orderByClause}
     LIMIT 10;
   `;
 
+  const response = await sql.query(finalQuery, params);
 
   return new Response(JSON.stringify({ response }), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
   });
 }
+
 
 export async function POST(req: NextRequest) {
   try {
