@@ -54,12 +54,12 @@ export default async function GymsPage({ params }: { params: Promise<{ id: strin
         <Feature available={gym.dumbbells} label="Dumbbells" />
         <Feature available={gym.treadmills} label="Treadmills" />
 
-        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mt-auto">
+        {gym.claimed_by === null && <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mt-auto">
           See an inaccuracy? Update this gym{" "}
           <Link className="underline" href={`/gyms/${id}/update`}>
             here!
           </Link>
-        </p>
+        </p>}
       </main>
 
       {gym.claimed_by === null && (

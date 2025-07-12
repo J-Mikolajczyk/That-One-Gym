@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const radius = searchParams.get('radius')?.trim(); // allowed to be missing/defaulted
   const is247 = searchParams.get('is247')?.trim();
 
-  const featureKeys = ['powerRacks', 'cableMachines', 'deadliftPlatforms', 'barbells', 'dumbbells'];
+  const featureKeys = ['powerRacks', 'cableMachines', 'deadliftPlatforms', 'barbells', 'dumbbells', 'treadmills'];
 
   const hasEquipmentFilters = featureKeys.some((key) => searchParams.get(key) === 'true');
 
