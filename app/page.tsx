@@ -12,12 +12,14 @@ export default function Home() {
 
   const [zip, setZip] = useState('');
   const [radius, setRadius] = useState(10);
-  type EquipmentKey = 'freeWeights' | 'powerRacks' | 'cableMachines' | 'dumbbells';
+  type EquipmentKey = 'powerRacks' | 'cableMachines' | 'deadliftPlatforms' | 'barbells'  | 'dumbbells'  | 'treadmills';
   const [equipment, setEquipment] = useState<Record<EquipmentKey, boolean>>({
-    freeWeights: false,
     powerRacks: false,
     cableMachines: false,
+    deadliftPlatforms: false,
+    barbells: false,
     dumbbells: false,
+    treadmills: false,
   });
   const [is247, setIs247] = useState(false);
 
@@ -47,16 +49,16 @@ export default function Home() {
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       try {
-        const equipmentParams = Object.entries(equipment)
-          .filter(([_, value]) => value)
-          .map(([key]) => `${encodeURIComponent(key)}=true`)
-          .join('&');
-
         const params = new URLSearchParams();
         if (query.trim()) params.append('q', query.trim());
         if (zip) params.append('zip', zip);
         if (radius) params.append('radius', radius.toString());
-        if (equipmentParams) params.append(equipmentParams, '');
+        
+        Object.entries(equipment)
+        .filter(([_, value]) => value)
+        .forEach(([key]) => {
+          params.append(key, 'true');
+        });
         if (is247) params.append('is247', 'true');
 
         const url = `/api/gyms?${params.toString()}`;
@@ -146,6 +148,17 @@ export default function Home() {
             className="w-full"
           />
         </div>
+        <label key={"is247"} className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={is247}
+              onChange={() =>
+                setIs247(!is247)
+              }
+              className="cursor-pointer"
+            />
+            24/7
+          </label>
         {Object.entries(equipment).map(([key, value]) => (
           <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
             <input
@@ -164,17 +177,6 @@ export default function Home() {
               .replace(/^./, (s) => s.toUpperCase())}
           </label>
         ))}
-        <label key={"is247"} className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={is247}
-              onChange={() =>
-                setIs247(!is247)
-              }
-              className="cursor-pointer"
-            />
-            24/7
-          </label>
         
       </aside>
 
@@ -226,7 +228,7 @@ export default function Home() {
               </div>
             ))}
 
-            {(query.trim() || zip || equipment.cableMachines || equipment.dumbbells || equipment.freeWeights || equipment.powerRacks || is247) && (
+            {(query.trim() || zip || equipment.powerRacks || equipment.cableMachines || equipment.deadliftPlatforms || equipment.barbells || equipment.dumbbells || equipment.treadmills || is247) && (
               <div
                 className="flex flex-col items-center justify-center h-30 p-4 bg-neutral-800 rounded-lg cursor-pointer hover:bg-neutral-700 transition-colors duration-200"
                 onClick={() => addGym()}
@@ -237,7 +239,7 @@ export default function Home() {
             )}
           </div>
 
-          { !query.trim() && !zip && !equipment.cableMachines && !equipment.dumbbells && !equipment.freeWeights && !equipment.powerRacks && !is247 &&
+          { !query.trim() && !zip && !equipment.powerRacks && !equipment.cableMachines && !equipment.deadliftPlatforms && !equipment.barbells && !equipment.dumbbells && !equipment.treadmills && !is247 &&
 
             <h1 className="mt-15 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">No more guessing. Search gyms by the equipment you want to train with - verified by lifters like you.</h1>
           }
