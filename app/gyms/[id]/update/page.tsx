@@ -192,7 +192,7 @@ export default function UpdateGymPage() {
 
   return (
     <div
-      className="flex flex-col min-h-screen p-10 lg:p-20 justify-start relative"
+      className="flex flex-col min-h-screen p-5 sm:p-10 lg:p-20 justify-start relative"
       style={{
         backgroundImage: "url('/images/landing.png')",
         backgroundSize: "cover",
@@ -200,7 +200,7 @@ export default function UpdateGymPage() {
       }}
     >
       <div className="absolute inset-0 bg-black/70 z-0" />
-      <Link href={`/gyms/${id}`} className="absolute top-4 left-4 z-10 text-white underline hover:text-gray-300">
+      <Link href={`/gyms/${id}`} className="absolute top-4 left-4 z-11 text-white underline hover:text-gray-300">
         &larr; Back to Gym Details
       </Link>
 

@@ -3,10 +3,13 @@ import { notFound } from "next/navigation";
 
 function Feature({ available, label }: { available: boolean; label: string }) {
   return (
-    <p>
-      <span className={available ? "text-green-600" : "text-red-600"}>
+    <p className="flex items-center gap-2">
+      <span
+        className={available ? "text-green-600" : "text-red-600"}
+        style={{ fontFamily: "Arial, sans-serif" }} // prevent emoji font
+      >
         {available ? "✔" : "✘"}
-      </span>{" "}
+      </span>
       {label}
     </p>
   );
@@ -22,7 +25,7 @@ export default async function GymsPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div
-      className="flex flex-col min-h-screen p-10 relative"
+      className="flex flex-col min-h-screen p-5 sm:p-10 relative"
       style={{
         backgroundImage: "url('/images/landing.png')",
         backgroundSize: "cover",
@@ -30,7 +33,7 @@ export default async function GymsPage({ params }: { params: Promise<{ id: strin
       }}
     >
       <div className="absolute inset-0 bg-black/70 z-[0]" />
-      <header className="w-full text-white font-bold z-[1] text-2xl mb-8 relative">
+      <header className="w-full text-white font-bold z-[1] text-2xl mb-4 sm:mb-8 relative">
         <Link href="/">That One Gym</Link>
       </header>
 
