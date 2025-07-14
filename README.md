@@ -80,10 +80,9 @@ npm run dev
 - [x] Landing page with background image and search bar
 - [x] Gym autocomplete with dropdown suggestions
 - [x] "Add a gym" prompt (login required)
-- [ ] Equipment filtering
+- [X] Equipment filtering
+- [X] Page for gym equipment updates
 - [ ] Gym claim & verification
-- [ ] Photo uploads
-- [ ] Map view with PostGIS or Maps API
 - [ ] Public user profiles
 
 ---
