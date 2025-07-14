@@ -1,6 +1,6 @@
 # That One Gym
 
-**[That One Gym](https://thatonegym.com)** is a web application that helps users find gyms based on the equipment they want to train with. Whether you're looking for a power rack, a belt squat machine, or calibrated plates, this app helps lifters locate the perfect gym — verified by the strength community.
+**[That One Gym](https://thatonegym.com)** is a web application that helps users find gyms based on the equipment they want to train with. Whether you're looking for a power rack, cable machines, or just deadlift platforms, this app helps lifters locate the perfect gym — verified by the strength community.
 
 > This project is a **work in progress** and under active development. 
 
