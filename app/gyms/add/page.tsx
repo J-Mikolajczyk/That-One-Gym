@@ -54,10 +54,7 @@ export default function AddGymPage() {
             console.log(session?.user?.id);
             const response = await fetch('/api/gyms', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'email': session?.user?.email || '',
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     gymName,
                     address: {
