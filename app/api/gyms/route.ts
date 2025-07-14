@@ -1,20 +1,21 @@
 import { NextRequest } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import zipcodes from "zipcodes";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/auth";
 
 export async function GET(req: NextRequest) {
   const sql = neon(process.env.DATABASE_URL as string);
   const searchParams = req.nextUrl.searchParams;
   const query = searchParams.get('q')?.trim() || '';
   const zip = searchParams.get('zip')?.trim();
-  const radius = searchParams.get('radius')?.trim(); // allowed to be missing/defaulted
+  const radius = searchParams.get('radius')?.trim(); 
   const is247 = searchParams.get('is247')?.trim();
 
   const featureKeys = ['powerRacks', 'cableMachines', 'deadliftPlatforms', 'barbells', 'dumbbells', 'treadmills'];
 
   const hasEquipmentFilters = featureKeys.some((key) => searchParams.get(key) === 'true');
 
-  // ✅ Early return if no meaningful search criteria
   if (!query && !zip && is247 !== 'true' && !hasEquipmentFilters) {
     return new Response(JSON.stringify({ response: [] }), {
       status: 200,
@@ -91,99 +92,86 @@ export async function GET(req: NextRequest) {
 
 
 export async function POST(req: NextRequest) {
-  try {
-    const emailsql = neon(process.env.DATABASE_URL as string);
-    const emailResponse = await emailsql`
-      SELECT id FROM users WHERE email = ${req.headers.get("email")};
-    `;
+  const session = await getServerSession(authOptions);
 
-    if (!emailResponse || emailResponse.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "User not found" }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-    const userId = emailResponse[0].id;
-    
-    const body = await req.json();
-    const { gymName, address } = body;
-
-    gymName.trim();
-    address.line1.trim();
-    address.line2.trim();
-    address.city.trim();
-    address.state.trim();
-    address.zip.trim();
-
-    if (!gymName || !address || !address.line1 || !address.city || !address.state || !address.zip || !userId) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const { line1, line2, city, state, zip } = address;
-    const addressRegex = /^[a-zA-Z0-9\s,.'-]{3,}$/; 
-    const cityRegex = /^[a-zA-Z\s]{2,}$/; 
-    const stateRegex = /^[A-Z]{2}$/; 
-    const zipRegex = /^\d{5}(-\d{4})?$/;
-
-    if (
-      !addressRegex.test(line1) ||
-      (line2 && !addressRegex.test(line2)) ||
-      !cityRegex.test(city) ||
-      !stateRegex.test(state) ||
-      !zipRegex.test(zip)
-    ) {
+  if (!session) {
     return new Response(
-        JSON.stringify({ error: "Invalid address format" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const sql = neon(process.env.DATABASE_URL as string);
-    const response = await sql`
-      INSERT INTO gyms (name, address, created_by)
-      VALUES (${gymName}, ${address}, ${userId})
-      RETURNING id;
-    `;
-
-    console.log("Gym added to database:", response);
-
-    if (!response || response.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Failed to add gym" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-    
-    return new Response(
-      JSON.stringify({ message: "Gym added successfully", gymName, address }),
+      JSON.stringify({ error: "Unauthorized" }),
       {
-        status: 201,
+        status: 401,
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (error) {
-    console.error("Error adding gym:", error);
+  }
+
+  const userId = (session.user as { id: string }).id;
+  
+  const body = await req.json();
+  const { gymName, address } = body;
+
+  gymName.trim();
+  address.line1.trim();
+  address.line2.trim();
+  address.city.trim();
+  address.state.trim();
+  address.zip.trim();
+
+  if (!gymName || !address || !address.line1 || !address.city || !address.state || !address.zip || !userId) {
     return new Response(
-      JSON.stringify({ error: "Failed to add gym"}),
+      JSON.stringify({ error: "Missing required fields" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  const { line1, line2, city, state, zip } = address;
+  const addressRegex = /^[a-zA-Z0-9\s,.'-]{3,}$/; 
+  const cityRegex = /^[a-zA-Z\s]{2,}$/; 
+  const stateRegex = /^[A-Z]{2}$/; 
+  const zipRegex = /^\d{5}(-\d{4})?$/;
+
+  if (
+    !addressRegex.test(line1) ||
+    (line2 && !addressRegex.test(line2)) ||
+    !cityRegex.test(city) ||
+    !stateRegex.test(state) ||
+    !zipRegex.test(zip)
+  ) {
+  return new Response(
+      JSON.stringify({ error: "Invalid address format" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  const sql = neon(process.env.DATABASE_URL as string);
+  const response = await sql`
+    INSERT INTO gyms (name, address, created_by)
+    VALUES (${gymName}, ${address}, ${userId})
+    RETURNING id;
+  `;
+
+  console.log("Gym added to database:", response);
+
+  if (!response || response.length === 0) {
+    return new Response(
+      JSON.stringify({ error: "Failed to add gym" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
       }
     );
   }
+  
+  return new Response(
+    JSON.stringify({ message: "Gym added successfully", gymName, address }),
+    {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 }

@@ -84,32 +84,32 @@ export default function UpdateGymPage() {
     return notFound();
   }
 
-  if (!session) {
-    return (
-      <div
-        className="flex flex-col min-h-screen p-10"
-        style={{
-          backgroundImage: "url('/images/landing.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/70 z-0" />
-        <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold">
-          That One Gym
-        </Link>
-        <div className="flex flex-col items-center justify-center my-auto z-10">
-          <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to update a gym</h1>
-          <button
-            onClick={() => signIn()}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (!session) {
+  //   return (
+  //     <div
+  //       className="flex flex-col min-h-screen p-10"
+  //       style={{
+  //         backgroundImage: "url('/images/landing.png')",
+  //         backgroundSize: "cover",
+  //         backgroundPosition: "center",
+  //       }}
+  //     >
+  //       <div className="absolute inset-0 bg-black/70 z-0" />
+  //       <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold hover:underline">
+  //         That One Gym
+  //       </Link>
+  //       <div className="flex flex-col items-center justify-center my-auto z-10">
+  //         <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to update a gym</h1>
+  //         <button
+  //           onClick={() => signIn()}
+  //           className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+  //         >
+  //           Sign In
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (loading) {
     return (
@@ -153,8 +153,7 @@ export default function UpdateGymPage() {
     try {
       const res = await fetch(`/api/gyms/${encodeURIComponent(id as string)}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json',
-                   'email': session?.user?.email || ''},
+        headers: { 'Content-Type': 'application/json',},
         body: JSON.stringify({
           name: form.name,
           address: {
@@ -176,7 +175,8 @@ export default function UpdateGymPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || 'Failed to update gym.');
+        console.log(err.error);
+        throw new Error(err.error);
       }
 
       setMessage({ type: 'success', text: 'Gym updated successfully!' });

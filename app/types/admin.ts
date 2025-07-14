@@ -20,3 +20,11 @@ export type Gym = {
   updated_at: string;
   claimed_by: string;
 };
+
+export type Session = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image: string;
+};
