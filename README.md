@@ -12,8 +12,6 @@
 - Filter gyms by equipment (e.g., deadlift platform, hack squat, etc.)
 - Equipment lists are **user-verified** for accuracy
 - Gym submission restricted to logged-in users
-- Gym listings can include community photos and reviews *(planned)*
-- Map-based search *(planned)*
 
 ---
 
