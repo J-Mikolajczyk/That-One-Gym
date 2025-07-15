@@ -30,7 +30,7 @@ export default function Admin() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-black/70 z-0" />
+      <div className="fixed inset-0 bg-black/70 z-0 min-h-screen" />
       <header className="w-full text-white font-bold z-1 text-2xl p-10">
         That One Gym
       </header>

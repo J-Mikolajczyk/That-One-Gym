@@ -84,32 +84,32 @@ export default function UpdateGymPage() {
     return notFound();
   }
 
-  // if (!session) {
-  //   return (
-  //     <div
-  //       className="flex flex-col min-h-screen p-10"
-  //       style={{
-  //         backgroundImage: "url('/images/landing.png')",
-  //         backgroundSize: "cover",
-  //         backgroundPosition: "center",
-  //       }}
-  //     >
-  //       <div className="absolute inset-0 bg-black/70 z-0" />
-  //       <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold hover:underline">
-  //         That One Gym
-  //       </Link>
-  //       <div className="flex flex-col items-center justify-center my-auto z-10">
-  //         <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to update a gym</h1>
-  //         <button
-  //           onClick={() => signIn()}
-  //           className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-  //         >
-  //           Sign In
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (!session) {
+    return (
+      <div
+        className="flex flex-col min-h-screen p-10"
+        style={{
+          backgroundImage: "url('/images/landing.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/70 z-0" />
+        <Link href="/" className="absolute top-4 left-4 text-white z-10 text-3xl font-bold hover:underline">
+          That One Gym
+        </Link>
+        <div className="flex flex-col items-center justify-center my-auto z-10">
+          <h1 className="text-white text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center">Please sign in to update a gym</h1>
+          <button
+            onClick={() => signIn()}
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
