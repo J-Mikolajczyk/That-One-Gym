@@ -69,7 +69,6 @@ GITHUB_SECRET=...
 
 ### 4. Run the App
 ```bash
-npx prisma db push   # or migrate dev
 npm run dev
 ```
 
